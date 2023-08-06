@@ -1,0 +1,67 @@
+---
+- name: YOLO Project Deployment
+  hosts: your_target_hosts
+  become: true
+  vars:
+    mongodb_service_name: mongod
+
+  tasks:
+    - name: Start MongoDB Service
+      systemd:
+        name: "{{ mongodb_service_name }}"
+        state: started
+
+    - name: Clone Repository
+      git:
+        repo: https://github.com/Vinge1718/yolo.git
+      register: git_repo
+
+    - name: Install Node.js and npm
+      apt:
+        name: [nodejs, npm]
+        state: present
+
+    - name: Navigate to Client Folder and Install Dependencies
+      command: npm install
+      args:
+        chdir: "{{ git_repo.dest }}/client"
+
+    - name: Start Client App
+      command: npm start
+      args:
+        chdir: "{{ git_repo.dest }}/client"
+      async: 100
+      poll: 0
+
+    - name: Wait for Client to Start
+      wait_for:
+        host: localhost
+        port: 3000
+        timeout: 120
+
+    - name: Open New Terminal for Backend
+      shell: gnome-terminal -- bash -c "cd {{ git_repo.dest }}/backend; npm install; npm start"
+
+    - name: Wait for Backend to Start
+      wait_for:
+        host: localhost
+        port: 3001
+        timeout: 120
+
+    # Additional tasks to add a product (modify as needed)
+    - name: Add Product
+      uri:
+        url: http://localhost:3001/api/products
+        method: POST
+        body_format: json
+        body: '{"name": "Sample Product", "price": 10}'
+        return_content: yes
+        status_code: 201
+      when: "'Sample Product' not in result.content"
+
+  handlers:
+    - name: Restart MongoDB Service
+      systemd:
+        name: "{{ mongodb_service_name }}"
+        state: restarted
+

@@ -1,0 +1,33 @@
+---
+- name: Stage 2 Deployment
+  hosts: tag_environment_stage_two  # Use dynamic inventory from Terraform
+  become: true
+
+  tasks:
+    # Clone the repository from GitHub (assuming it's already pushed)
+    - name: Clone Terraform Repository
+      git:
+        repo: https://github.com/obota/Moringa-Ansible-Project.git
+        dest: /path/on/target/machine/Moringa-Ansible-Project
+
+    # Use Terraform to provision infrastructure
+    - name: Initialize Terraform
+      command: terraform init
+      args:
+        chdir: /path/on/target/machine/Moringa-Ansible-Project/Stage_two
+
+    - name: Plan Terraform Changes
+      command: terraform plan -out=tfplan
+      args:
+        chdir: /path/on/target/machine/Moringa-Ansible-Project/Stage_two
+
+    - name: Apply Terraform Changes
+      command: terraform apply tfplan
+      args:
+        chdir: /path/on/target/machine/Moringa-Ansible-Project/Stage_two
+      when: "'yes' in prompt.stdout"
+
+    # Your tasks for server configuration and application deployment
+
+  handlers:
+    # Handlers for restarting services, etc.
