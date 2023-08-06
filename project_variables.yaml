@@ -1,0 +1,19 @@
+# project_vars.yml
+
+# Variables for YOLO Project Deployment playbook
+mongodb_service_name: mongod
+github_repo_url: https://github.com/obota/Moringa-Ansible-Project.git
+client_app_directory: "{{ git_repo.dest }}/client"
+backend_app_directory: "{{ git_repo.dest }}/backend"
+client_port: 3000
+backend_port: 3001
+product_api_url: http://localhost:3001/api/products
+sample_product:
+  name: Sample Product
+  price: 10
+
+# Variables for Stage 2 Deployment playbook
+terraform_repo_url: https://github.com/obota/Moringa-Ansible-Project.git
+terraform_directory: /path/on/16.171.233.84/Moringa-Ansible-Project/Stage_two
+terraform_prompt_condition: 'yes' in prompt.stdout
+# Add more variables related to your infrastructure provisioning if needed
