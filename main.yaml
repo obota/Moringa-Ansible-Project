@@ -1,0 +1,13 @@
+---
+- name: Deploy My Application
+  hosts: aws
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    # Add more tasks for your application deployment here
+    # For example, copying files, installing packages, configuring services, etc.
+
